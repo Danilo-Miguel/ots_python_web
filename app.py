@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, abort, flash, redirect, url_for
+from flask import Flask, render_template, g,  request, session, abort, flash, redirect, url_for
 from posts import posts
 import sqlite3
 
@@ -12,10 +12,30 @@ DATABASE = "banco.bd"
 def conectar():
     return sqlite3.connect(DATABASE)
 
+@app.before_request
+def before_request():
+    g.bd = conectar()    
+
+@app.teardown_request
+def teardown_request(f):
+    g.bd.close()        
+
+
+
 @app.route('/')
 def exibir_entradas():
-    entradas = posts[::-1] # Mock das postagens
-    return render_template('exibir_entradas.html', entradas=entradas)
+    # entradas = posts[::-1] # Mock das postagens
+
+
+    sql  = "SELECT titulo, texto, data_criacao FROM posts ORDER BY id DESC"
+    resultado = g.bd.execute(sql)
+
+    entrada = [
+{"titulo":"Primeiro Titulo", "texto":"Primeiro", "data_criacao":"11/09/2023"},
+{"titulo":"Segundo Titulo", "texto":"Segundo", "data_criacao":"12/09/2023"}
+    ]
+
+    return render_template('exibir_entradas.html', entradas=entrada)
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
@@ -45,10 +65,10 @@ def inserir_entradas():
         flash("Post criado com sucesso!")
     return redirect(url_for('exibir_entradas'))
 
-@app.route('/posts/<int:id>')
-def exibir_entrada(id):
-    try:
-        entrada = posts[id-1]
-        return render_template('exibir_entrada.html', entrada=entrada)
-    except Exception:
-        return abort(404)
+# @app.route('/posts/<int:id>')
+# def exibir_entrada(id):
+#     try:
+#         entrada = posts[id-1]
+#         return render_template('exibir_entrada.html', entrada=entrada)
+#     except Exception:
+#         return abort(404)

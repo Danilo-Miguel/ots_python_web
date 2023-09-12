@@ -17,8 +17,8 @@
     <ul class="entradas">
         {% for entrada in entradas %}
         <li>
-            <a href="{{ url_for('exibir_entrada', id=loop.revindex) }}"><h2>{{ entrada.titulo }}</h2></a>
-            {{ entrada.texto |safe | truncate(140) }}
+            <a href="{{ url_for('exibir_entradas', id=loop.revindex) }}"><h2>{{ entrada.titulo }}</h2></a>
+            {{ entrada.texto |safe | truncate(140) }} {{ entrada.data_cria |safe | truncate(140) }}
         </li>
         {% else %}
             <li><em>Inacreditável. Até agora nenhuma entrada.</em></li>
